@@ -8,7 +8,7 @@ ARQUIVO = 'usuarios.json'
 class Usuario:
     _ultimo_id = 0  # Gerador simples de IDs incrementais
 
-    def __init__(self, name, email, password, role='user', status='active', 
+    def __init__(self, nome, email, senha, role='user', status='active', 
                  profile_picture='', bio='', location='', preferences=None,
                  created_at=None, last_login=None, id=None): 
         if id is None: 
@@ -18,9 +18,9 @@ class Usuario:
             self.id = id 
             Usuario._ultimo_id = max(Usuario._ultimo_id, id)
 
-        self.name = name 
+        self.nome = nome 
         self.email = email
-        self.password = Usuario.hash_password(password)
+        self.senha = Usuario.hash_password(senha)
         self.role = role
         self.status = status
         self.profile_picture = profile_picture
@@ -35,15 +35,15 @@ class Usuario:
         self.last_login = last_login or datetime.utcnow().isoformat() 
 
     @staticmethod
-    def hash_password(password):
-        return bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+    def hash_password(senha):
+        return bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
     def to_dict(self): # Converte o objeto para um dicionário
         return {
             "id": self.id,
-            "name": self.name,
+            "nome": self.nome,
             "email": self.email,
-            "password": self.password.decode('utf-8'),  # bcrypt gera bytes
+            "senha": self.senha.decode('utf-8'),  # bcrypt gera bytes
             "role": self.role,
             "status": self.status,
             "profile_picture": self.profile_picture,
@@ -58,9 +58,9 @@ class Usuario:
     def from_dict(cls, data):
         obj = cls(
             id=data['id'],
-            name=data['name'],
+            nome=data['nome'],
             email=data['email'],
-            password=data['password'],  # já está como hash
+            senha=data['senha'],  # já está como hash
             role=data.get('role', 'user'),
             status=data.get('status', 'active'),
             profile_picture=data.get('profile_picture', ''),
@@ -70,14 +70,14 @@ class Usuario:
             created_at=data.get('created_at'),
             last_login=data.get('last_login')
         )
-        obj.password = data['password'].encode('utf-8')  # converte a senha de volta para bytes
+        obj.senha = data['senha'].encode('utf-8')  # converte a senha de volta para bytes
         Usuario._ultimo_id = max(Usuario._ultimo_id, data['id'])
         return obj
 
     @staticmethod
     def verificar_senha(self, senha):
         # Verifica se a senha fornecida corresponde ao hash armazenado
-        return bcrypt.checkpw(senha.encode('utf-8'), self.password)
+        return bcrypt.checkpw(senha.encode('utf-8'), self.senha)
 
 
 # Funções auxiliares para manipulação do arquivo JSON

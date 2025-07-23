@@ -24,13 +24,15 @@ function Register() {
     setError(null); // Limpa erros anteriores.
 
     try {
-      const response = await fetch("http://localhost:5000/cadastro", {
+      const response = await fetch("http://localhost:5000/registrar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ nome, email, senha }),
       });
 
       const data = await response.json(); // É mais comum receber JSON do que texto puro.
+
+      console.log("Resposta do servidor:", data);
 
       if (!response.ok) {
         // Se a resposta não for 2xx, lançamos um erro para ser pego pelo catch.

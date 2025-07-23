@@ -9,9 +9,9 @@ def registrar():
     if any(u.email == email for u in usuarios):
         print("Email já cadastrado.")
         return
-    name = input("Digite seu nome: ")
+    nome = input("Digite seu nome: ")
     senha = input("Digite sua senha: ")
-    novo_usuario = Usuario(name=name, email=email, password=senha)
+    novo_usuario = Usuario(nome=nome, email=email, senha=senha)
     usuarios.append(novo_usuario)
     salvar_usuarios(usuarios)
     print("Usuário registrado com sucesso!")
@@ -35,7 +35,7 @@ def login():
     usuario_encontrado = next((u for u in usuarios if u.email == email), None)
 
     if usuario_encontrado and Usuario.verificar_senha(usuario_encontrado, senha):
-        print(f"Bem-vindo, {usuario_encontrado.name}!")
+        print(f"Bem-vindo, {usuario_encontrado.nome}!")
     else:
         print("Email ou senha incorretos.")
 

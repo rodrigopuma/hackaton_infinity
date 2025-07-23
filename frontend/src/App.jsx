@@ -16,6 +16,9 @@ function App() {
             {/* Rota principal que leva para o Dashboard */}
             <Route path="/" element={<DashboardPage />} />
 
+            {/* Rota para a página do Dashboard */}
+            <Route path="/dashboard" element={<DashboardPage />} />
+
             {/* Rota para a página de Login */}
             <Route path="/login" element={<LoginPage />} />
 

@@ -24,9 +24,11 @@ function LoginPage() {
       const texto = await resposta.text();
 
       if (resposta.ok) {
+        console.log("Resposta do servidor:", texto);
         alert("Login realizado com sucesso!");
         navigate("/dashboard");
       } else {
+        console.log("Resposta do servidor:", texto);
         alert("Erro: " + texto);
       }
     } catch (error) {
