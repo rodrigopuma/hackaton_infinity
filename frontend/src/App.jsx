@@ -4,14 +4,11 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import ProfilePage from './pages/ProfilePage';
+import { ThemeProvider } from './contexts/ThemeContext';
 
 function App() {
-  // Miguel: Nós próximos passos iremos controlar o isDarkMode com um contexto
-  // Por enquanto pode trocar entre 'true' e 'false' para realizar testes
-  const isDarkMode = false;
-
   return (
-    <div className={isDarkMode ? 'dark' : ''}>
+    <ThemeProvider>
       <div className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
         <BrowserRouter>
           <Routes>
@@ -26,7 +23,7 @@ function App() {
           </Routes>
         </BrowserRouter>
       </div>
-    </div>
+    </ThemeProvider>
   )
 }
 
