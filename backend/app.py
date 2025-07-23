@@ -8,14 +8,13 @@ from usuario import carregar_usuarios, salvar_usuarios, Usuario
 app = Flask(__name__)
 
 CORS(app, supports_credentials=True, resources={r"/*": {"origins": [
-    "http://localhost:5173",
-    "http://127.0.0.1:5173",
     "http://localhost:5001",
-    "http://127.0.0.1:5001",
-    "http://localhost:5000",
-    "http://127.0.0.1:5000",
-    "http://127.0.0.1:5000/login"
+    "http://localhost:5000"
 ]}})  # Permite acesso do frontend
+
+@app.route('/', methods=['GET'])
+def home(): 
+    return "Bem-vindo ao servidor!"
 
 @app.route('/dashboard', methods=['GET'])
 def index():
