@@ -1,85 +1,95 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
-  const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
+
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
+    setError(null);
 
     try {
-      const resposta = await fetch("http://localhost:5000/login", {
-        method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ email, senha }),
-      });
+      // Chamada teste API (Aqui futuramente será chamada a API Flask)
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const texto = await resposta.text();
+      const userData = { name: "Miguel Henrique", email: email };
+      const userToken = "abcdef123456"; // Token de exemplo
 
-      if (resposta.ok) {
-        console.log("Resposta do servidor:", texto);
-        alert("Login realizado com sucesso!");
-        navigate("/dashboard");
-      } else {
-        console.log("Resposta do servidor:", texto);
-        alert("Erro: " + texto);
-      }
-    } catch (error) {
-      alert("Erro na conexão: " + error.message);
+      // CHAME A FUNÇÃO login() DO CONTEXTO AQUI
+      // Ela já cuida de salvar o estado, o localStorage e o redirecionamento.
+      login(userData, userToken);
+
+    } catch (err) {
+      setError("Falha na conexão ou na API.");
+      console.error(err);
+    } finally {
+      setIsLoading(false);
     }
   };
+
   return (
-    <div className="flex items-center justify-center h-screen">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold">Página de Login</h1>
-        <form
-          onSubmit={handleSubmit}
-          className="bg-white p-6 rounded shadow-md w-96"
-        >
-          <h2 className="text-2xl font-bold mb-4">Login</h2>
+    <div className="flex flex-col items-center justify-center min-h-screen p-4">
+      <div className="w-full max-w-md">
+        <h1 className="text-3xl font-bold text-infinity-red mb-6 text-center">
+          Organiza<span className="font-light text-infinity-text">Infinity</span>
+        </h1>
 
-          {/* Os inputs são "componentes controlados", pois seu valor é gerenciado pelo estado do React. */}
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full p-2 border rounded mb-3"
-            required
-            disabled={isLoading} // Desabilita o input durante o loading.
-          />
-          {/* ... inputs de email e senha com disabled={isLoading} também ... */}
+        <form onSubmit={handleSubmit} className="bg-infinity-gray p-8 rounded-lg shadow-xl">
+          <h2 className="text-2xl font-bold mb-6 text-center text-infinity-text">Acessar Plataforma</h2>
 
-          <input
-            type="password"
-            placeholder="Senha"
-            value={senha}
-            onChange={(e) => setSenha(e.target.value)}
-            className="w-full p-2 border rounded mb-3"
-            required
-            disabled={isLoading} // Desabilita o input durante o loading.
-          />
-          {/* ... inputs de email e senha com disabled={isLoading} também ... */}
+          <div className="mb-4">
+            <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+            <input
+              id="email"
+              type="email"
+              placeholder="seu.email@exemplo.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              className="w-full p-3 bg-infinity-dark border border-infinity-gray-light rounded-md text-infinity-text focus:outline-none focus:ring-2 focus:ring-infinity-red"
+              required
+              disabled={isLoading}
+            />
+          </div>
+
+          <div className="mb-6">
+            <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-1">Senha</label>
+            <input
+              id="password"
+              type="password"
+              placeholder="********"
+              value={senha}
+              onChange={(e) => setSenha(e.target.value)}
+              className="w-full p-3 bg-infinity-dark border border-infinity-gray-light rounded-md text-infinity-text focus:outline-none focus:ring-2 focus:ring-infinity-red"
+              required
+              disabled={isLoading}
+            />
+          </div>
 
           <button
             type="submit"
-            className="w-full bg-blue-500 text-white py-2 rounded hover:bg-blue-600 disabled:bg-gray-400"
-            disabled={isLoading} // O botão é desabilitado se isLoading for true.
+            className="w-full bg-infinity-red text-white font-bold py-3 rounded-lg hover:brightness-110 transition-all disabled:bg-opacity-50"
+            disabled={isLoading}
           >
-            {/* Texto do botão muda para indicar o carregamento. */}
             {isLoading ? "Entrando..." : "Entrar"}
           </button>
 
-          {/* Exibe a mensagem de erro na tela, se houver. */}
-          {error && <p className="text-red-500 mt-4 text-center">{error}</p>}
+          {error && <p className="text-red-400 mt-4 text-center">{error}</p>}
         </form>
+
+        <p className="text-center text-gray-400 mt-6">
+          Não tem uma conta?{" "}
+          <Link to="/register" className="text-infinity-red hover:underline">
+            Cadastre-se
+          </Link>
+        </p>
       </div>
     </div>
   );

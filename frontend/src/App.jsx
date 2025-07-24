@@ -1,35 +1,43 @@
-// src/App.jsx
+// src/App.jsx - Versão Corrigida
 
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import DashboardPage from "./pages/DashboardPage";
-import LoginPage from "./pages/LoginPage";
-import ProfilePage from "./pages/ProfilePage";
-import { ThemeProvider } from "./contexts/ThemeContext";
-import Register from "./pages/registerPage";
+import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+
+// Páginas e Componentes
+import DashboardPage from './pages/DashboardPage';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import ProfilePage from './pages/ProfilePage';
+import MainLayout from './components/layout/MainLayout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import CalendarPage from './pages/CalendarPage';
 
 function App() {
   return (
     <ThemeProvider>
-      <div className="bg-gray-100 dark:bg-gray-900 text-gray-800 dark:text-gray-200 min-h-screen">
-        <BrowserRouter>
-          <Routes>
-            {/* Rota principal que leva para o Dashboard */}
-            <Route path="/" element={<DashboardPage />} />
+      {/* CORREÇÃO: O BrowserRouter deve vir antes do AuthProvider,
+          pois o AuthProvider usa o hook useNavigate, que depende do BrowserRouter. */}
+      <BrowserRouter>
+        <AuthProvider>
+          <div className="font-sans bg-infinity-dark text-infinity-text min-h-screen">
+            <Routes>
+              {/* Rotas Públicas */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            {/* Rota para a página do Dashboard */}
-            <Route path="/dashboard" element={<DashboardPage />} />
-
-            {/* Rota para a página de Login */}
-            <Route path="/login" element={<LoginPage />} />
-
-            {/* Rota para a página de Registro */}
-            <Route path="/registrar" element={<Register />} />
-
-            {/* Rota para a página de Perfil */}
-            <Route path="/perfil" element={<ProfilePage />} />
-          </Routes>
-        </BrowserRouter>
-      </div>
+              {/* Agrupamento de Rotas Protegidas */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/perfil" element={<ProfilePage />} />
+                  <Route path="/calendario" element={<CalendarPage />} />
+                </Route>
+              </Route>
+            </Routes>
+          </div>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
