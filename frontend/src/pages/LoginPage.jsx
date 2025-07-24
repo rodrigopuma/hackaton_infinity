@@ -13,6 +13,7 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsLoading(true);
 
     try {
       const resposta = await fetch("http://localhost:5000/api/login", {
