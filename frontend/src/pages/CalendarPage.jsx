@@ -1,31 +1,41 @@
+// src/pages/CalendarPage.jsx
+
 import { useState } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
+import EventModal from '../components/EventModal'; // 1. Importe o Modal
 
 function CalendarPage() {
-    // Estado para armazenar os eventos (tarefas) do calendário
     const [events, setEvents] = useState([
-        // Eventos de exemplo
-        { title: 'Reunião de Planejamento', date: '2025-07-25' },
-        { title: 'Entrega do Projeto X', date: '2025-07-28', color: '#E84A3F' } // Usando nossa cor!
+        { title: 'Reunião de Planejamento', date: '2025-07-25', color: '#3174ad' },
+        { title: 'Entrega do Projeto X', date: '2025-07-28', color: '#E84A3F' }
     ]);
 
-    // Esta função é chamada quando o usuário clica em uma data ou seleciona um período
+    // 2. Estados para controlar o modal e a data selecionada
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedDateInfo, setSelectedDateInfo] = useState(null);
+
+    // 3. Modifica o handleDateSelect para ABRIR o modal
     const handleDateSelect = (selectInfo) => {
-        let title = prompt('Por favor, digite o nome da nova tarefa:');
-        let calendarApi = selectInfo.view.calendar;
+        setIsModalOpen(true);
+        setSelectedDateInfo(selectInfo);
+    };
 
-        calendarApi.unselect(); // Limpa a seleção da data
+    // 4. Cria a função para SALVAR o evento vindo do modal
+    const handleSaveEvent = ({ title, category }) => {
+        if (selectedDateInfo) {
+            const calendarApi = selectedDateInfo.view.calendar;
+            calendarApi.unselect(); // Limpa a seleção da data
 
-        if (title) {
             const newEvent = {
                 title,
-                start: selectInfo.startStr,
-                end: selectInfo.endStr,
-                allDay: selectInfo.allDay
+                start: selectedDateInfo.startStr,
+                end: selectedDateInfo.endStr,
+                allDay: selectedDateInfo.allDay,
+                // Lógica de cores (exemplo simples)
+                color: category === 'Entregas' ? '#E84A3F' : category === 'Eventos' ? '#f0ad4e' : '#3174ad'
             };
-            // Adiciona o novo evento ao nosso estado de eventos
             setEvents(currentEvents => [...currentEvents, newEvent]);
         }
     };
@@ -33,7 +43,7 @@ function CalendarPage() {
     return (
         <div>
             <h1 className="text-3xl font-bold text-infinity-text mb-6">Meu Calendário</h1>
-            <div className="p-4 bg-infinity-gray rounded-lg">
+            <div className="p-4 bg-infinity-gray rounded-lg text-infinity-text">
                 <FullCalendar
                     plugins={[dayGridPlugin, interactionPlugin]}
                     initialView="dayGridMonth"
@@ -43,12 +53,18 @@ function CalendarPage() {
                         right: 'dayGridMonth'
                     }}
                     events={events}
-                    selectable={true}      // Permite que o usuário selecione datas
-                    select={handleDateSelect} // Função que é chamada ao selecionar
-                    height="auto" // Ajusta a altura automaticamente
-                // Em breve, vamos customizar o estilo para combinar com o tema...
+                    selectable={true}
+                    select={handleDateSelect}
+                    height="75vh"
                 />
             </div>
+
+            {/* 5. Renderiza o Modal, passando os estados e funções como props */}
+            <EventModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSaveEvent}
+            />
         </div>
     );
 }
