@@ -1,95 +1,90 @@
+# backend/usuario.py
+
 import bcrypt
 import json
 import os
 from datetime import datetime
+import uuid # Usaremos para IDs mais robustos
 
-ARQUIVO = 'usuarios.json'
+ARQUIVO_USUARIOS = 'usuarios.json'
 
 class Usuario:
-    _ultimo_id = 0  # Gerador simples de IDs incrementais
-
-    def __init__(self, nome, email, senha, role='user', status='active', 
-                 profile_picture='', bio='', location='', preferences=None,
-                 created_at=None, last_login=None, id=None): 
-        if id is None: 
-            Usuario._ultimo_id += 1 
-            self.id = Usuario._ultimo_id 
-        else: 
-            self.id = id 
-            Usuario._ultimo_id = max(Usuario._ultimo_id, id)
-
-        self.nome = nome 
+    def __init__(self, nome, email, senha, id=None, **kwargs):
+        self.id = id if id else str(uuid.uuid4())
+        self.nome = nome
         self.email = email
-        self.senha = Usuario.hash_password(senha)
-        self.role = role
-        self.status = status
-        self.profile_picture = profile_picture
-        self.bio = bio
-        self.location = location
-        self.preferences = preferences or { 
-            "language": "pt-BR", 
-            "notifications": True,
-            "theme": "light"
-        } 
-        self.created_at = created_at or datetime.utcnow().isoformat() 
-        self.last_login = last_login or datetime.utcnow().isoformat() 
+        # O hash da senha é feito aqui, ao criar o usuário
+        self.senha_hash = self.hash_password(senha)
+        
+        # Outros campos com valores padrão
+        self.role = kwargs.get('role', 'Funcionário')
+        self.bio = kwargs.get('bio', 'Novo membro da equipe Infinity!')
+        self.photoUrl = kwargs.get('photoUrl', f"https://ui-avatars.com/api/?name={nome.replace(' ', '+')}")
 
     @staticmethod
     def hash_password(senha):
+        """Cria um hash seguro para a senha fornecida."""
         return bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
 
-    def to_dict(self): # Converte o objeto para um dicionário
+    def verificar_senha(self, senha_para_verificar):
+        """
+        CORRIGIDO: Este é um método de instância, não estático.
+        Ele compara uma senha em texto puro com o hash armazenado no objeto.
+        """
+        return bcrypt.checkpw(senha_para_verificar.encode('utf-8'), self.senha_hash)
+
+    def to_dict(self):
+        """
+        Converte o objeto Usuario para um dicionário.
+        IMPORTANTE: NUNCA inclua a senha ou o hash da senha aqui!
+        """
         return {
             "id": self.id,
-            "nome": self.nome,
+            "name": self.nome,
             "email": self.email,
-            "senha": self.senha.decode('utf-8'),  # bcrypt gera bytes
             "role": self.role,
-            "status": self.status,
-            "profile_picture": self.profile_picture,
             "bio": self.bio,
-            "location": self.location,
-            "preferences": self.preferences,
-            "created_at": self.created_at,
-            "last_login": self.last_login
+            "photoUrl": self.photoUrl
         }
-
+    
     @classmethod
     def from_dict(cls, data):
-        obj = cls(
+        """Cria uma instância de Usuario a partir de um dicionário (vindo do JSON)."""
+        # Nota: A senha não é passada aqui, pois já vem hasheada
+        user_obj = cls(
             id=data['id'],
-            nome=data['nome'],
+            nome=data['name'],
             email=data['email'],
-            senha=data['senha'],  # já está como hash
-            role=data.get('role', 'user'),
-            status=data.get('status', 'active'),
-            profile_picture=data.get('profile_picture', ''),
-            bio=data.get('bio', ''),
-            location=data.get('location', ''),
-            preferences=data.get('preferences'),
-            created_at=data.get('created_at'),
-            last_login=data.get('last_login')
+            senha="dummy_password_not_used", # A senha real não é necessária aqui
+            role=data.get('role'),
+            bio=data.get('bio'),
+            photoUrl=data.get('photoUrl')
         )
-        obj.senha = data['senha'].encode('utf-8')  # converte a senha de volta para bytes
-        Usuario._ultimo_id = max(Usuario._ultimo_id, data['id'])
-        return obj
+        # Atribuímos o hash diretamente
+        user_obj.senha_hash = data['senha_hash'].encode('utf-8')
+        return user_obj
 
-    @staticmethod
-    def verificar_senha(self, senha):
-        # Verifica se a senha fornecida corresponde ao hash armazenado
-        return bcrypt.checkpw(senha.encode('utf-8'), self.senha)
+# --- Funções Auxiliares ---
 
-
-# Funções auxiliares para manipulação do arquivo JSON
 def carregar_usuarios():
-    if not os.path.exists(ARQUIVO): # Verifica se o arquivo existe
-        return []
+    """Carrega todos os usuários do arquivo JSON."""
+    if not os.path.exists(ARQUIVO_USUARIOS):
+        return {} # Usaremos um dicionário com emails como chave para busca rápida
+    
+    with open(ARQUIVO_USUARIOS, 'r', encoding='utf-8') as f:
+        lista_de_usuarios_dict = json.load(f)
+        # Converte a lista de dicts em um dict de objetos Usuario
+        usuarios_obj = {u['email']: Usuario.from_dict(u) for u in lista_de_usuarios_dict}
+        return usuarios_obj
 
-    with open(ARQUIVO, 'r', encoding='utf-8') as f: # Abre o arquivo para leitura
-        data = json.load(f) # Carrega os dados do arquivo JSON
-        return [Usuario.from_dict(user) for user in data] # Converte cada dicionário em um objeto Usuario
+def salvar_usuarios(dict_usuarios):
+    """Salva o dicionário de usuários de volta no arquivo JSON."""
+    lista_para_salvar = []
+    for user_obj in dict_usuarios.values():
+        # Antes de salvar, precisamos do dicionário completo, incluindo o hash
+        full_dict = user_obj.to_dict()
+        full_dict['senha_hash'] = user_obj.senha_hash.decode('utf-8')
+        lista_para_salvar.append(full_dict)
 
-
-def salvar_usuarios(lista_usuarios): # Salva a lista de usuários no arquivo JSON
-    with open(ARQUIVO, 'w', encoding='utf-8') as f: # Abre o arquivo para escrita
-        json.dump([user.to_dict() for user in lista_usuarios], f, ensure_ascii=False, indent=4) # Converte cada objeto Usuario em um dicionário e salva no arquivo JSON
+    with open(ARQUIVO_USUARIOS, 'w', encoding='utf-8') as f:
+        json.dump(lista_para_salvar, f, ensure_ascii=False, indent=4)

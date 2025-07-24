@@ -20,7 +20,14 @@ function LoginPage() {
       // Chamada teste API (Aqui futuramente será chamada a API Flask)
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      const userData = { name: "Miguel Henrique", email: email };
+      const userData = {
+        name: "Miguel Henrique",
+        email: email,
+        role: "Desenvolvedor Full Stack IA",
+        bio: "Entusiasta de tecnologia e participante do Hackathon Infinity School 2025.",
+        // Usando um serviço para gerar um avatar com as iniciais do nome
+        photoUrl: `https://ui-avatars.com/api/?name=Miguel+Henrique&background=E84A3F&color=fff&size=128`
+      };
       const userToken = "abcdef123456"; // Token de exemplo
 
       // CHAME A FUNÇÃO login() DO CONTEXTO AQUI
