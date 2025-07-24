@@ -2,27 +2,47 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
 function RegisterPage() {
+  // Estados para controlar os valores dos inputs.
   const [nome, setNome] = useState("");
   const [email, setEmail] = useState("");
   const [senha, setSenha] = useState("");
+
+  // Estados para controlar a UI durante a requisição.
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
+
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsLoading(true);
-    setError(null);
+    e.preventDefault(); // Previne o comportamento padrão do formulário de recarregar a página.
+    setIsLoading(true); // Inicia o carregamento, desabilita o botão.
+    setError(null); // Limpa erros anteriores.
     try {
       // Lógica de cadastro aqui
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const response = await fetch("http://localhost:5000/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ nome, email, senha }),
+      });
+
+      const data = await response.json(); // É mais comum receber JSON do que texto puro.
+      console.log("Resposta do servidor:", data);
+
+      if (!response.ok) {
+        // Se a resposta não for 2xx, lançamos um erro para ser pego pelo catch.
+        throw new Error(data.message || "Erro no servidor.");
+      }
+
       console.log("Tentativa de cadastro:", { nome, email, senha });
       alert("Usuário cadastrado com sucesso!");
       navigate("/login");
     } catch (err) {
-      setError("Falha ao tentar cadastrar.");
-      console.error(err);
+      // Captura erros de rede (API offline) ou erros lançados por nós (resposta.ok === false).
+      console.error("Falha ao tentar cadastrar: " + err.message);
+      setError(err.message); // Guarda a mensagem de erro para exibir na tela.
     } finally {
+      // O bloco `finally` sempre executa, dando certo ou errado.
+      // Perfeito para reativar o botão.
       setIsLoading(false);
     }
   };
@@ -31,13 +51,24 @@ function RegisterPage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-bold text-infinity-red mb-6 text-center">
-          Organiza<span className="font-light text-infinity-text">Infinity</span>
+          Organiza
+          <span className="font-light text-infinity-text">Infinity</span>
         </h1>
-        <form onSubmit={handleSubmit} className="bg-infinity-gray p-8 rounded-lg shadow-xl">
-          <h2 className="text-2xl font-bold mb-6 text-center text-infinity-text">Criar Nova Conta</h2>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-infinity-gray p-8 rounded-lg shadow-xl"
+        >
+          <h2 className="text-2xl font-bold mb-6 text-center text-infinity-text">
+            Criar Nova Conta
+          </h2>
 
           <div className="mb-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-400 mb-1">Nome Completo</label>
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Nome Completo
+            </label>
             <input
               id="name"
               type="text"
@@ -51,7 +82,12 @@ function RegisterPage() {
           </div>
 
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Email
+            </label>
             <input
               id="email"
               type="email"
@@ -65,7 +101,12 @@ function RegisterPage() {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-1">Senha</label>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Senha
+            </label>
             <input
               id="password"
               type="password"

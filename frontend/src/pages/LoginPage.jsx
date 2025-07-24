@@ -13,27 +13,34 @@ function LoginPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsLoading(true);
-    setError(null);
 
     try {
-      // Chamada teste API (Aqui futuramente será chamada a API Flask)
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      const resposta = await fetch("http://localhost:5000/api/login", {
+        method: "POST",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, senha }),
+      });
 
-      const userData = {
-        name: "Miguel Henrique",
-        email: email,
-        role: "Desenvolvedor Full Stack IA",
-        bio: "Entusiasta de tecnologia e participante do Hackathon Infinity School 2025.",
-        // Usando um serviço para gerar um avatar com as iniciais do nome
-        photoUrl: `https://ui-avatars.com/api/?name=Miguel+Henrique&background=E84A3F&color=fff&size=128`
-      };
-      const userToken = "abcdef123456"; // Token de exemplo
+      const json = await resposta.json();
 
-      // CHAME A FUNÇÃO login() DO CONTEXTO AQUI
-      // Ela já cuida de salvar o estado, o localStorage e o redirecionamento.
-      login(userData, userToken);
+      if (resposta.ok) {
+        console.log("Resposta do servidor:", json);
+        alert("Login realizado com sucesso!");
+        navigate("/dashboard");
 
+        const userData = json.user;
+        const userToken = "abcdef123456"; // Token de exemplo
+
+        // CHAME A FUNÇÃO login() DO CONTEXTO AQUI
+        // Ela já cuida de salvar o estado, o localStorage e o redirecionamento.
+        login(userData, userToken);
+      } else {
+        console.log("Resposta do servidor:", json);
+        alert("Erro: " + json);
+      }
     } catch (err) {
       setError("Falha na conexão ou na API.");
       console.error(err);
@@ -46,14 +53,25 @@ function LoginPage() {
     <div className="flex flex-col items-center justify-center min-h-screen p-4">
       <div className="w-full max-w-md">
         <h1 className="text-3xl font-bold text-infinity-red mb-6 text-center">
-          Organiza<span className="font-light text-infinity-text">Infinity</span>
+          Organiza
+          <span className="font-light text-infinity-text">Infinity</span>
         </h1>
 
-        <form onSubmit={handleSubmit} className="bg-infinity-gray p-8 rounded-lg shadow-xl">
-          <h2 className="text-2xl font-bold mb-6 text-center text-infinity-text">Acessar Plataforma</h2>
+        <form
+          onSubmit={handleSubmit}
+          className="bg-infinity-gray p-8 rounded-lg shadow-xl"
+        >
+          <h2 className="text-2xl font-bold mb-6 text-center text-infinity-text">
+            Acessar Plataforma
+          </h2>
 
           <div className="mb-4">
-            <label htmlFor="email" className="block text-sm font-medium text-gray-400 mb-1">Email</label>
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Email
+            </label>
             <input
               id="email"
               type="email"
@@ -67,7 +85,12 @@ function LoginPage() {
           </div>
 
           <div className="mb-6">
-            <label htmlFor="password" className="block text-sm font-medium text-gray-400 mb-1">Senha</label>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-400 mb-1"
+            >
+              Senha
+            </label>
             <input
               id="password"
               type="password"

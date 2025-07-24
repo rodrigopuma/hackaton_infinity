@@ -12,6 +12,10 @@ CORS(app, origins=['http://localhost:5001'], supports_credentials=True)
 
 # --- Endpoints da API ---
 
+@app.route('/', methods=['GET'])
+def home():
+    return "Servidor Rodando!!!"
+
 @app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
