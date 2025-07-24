@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 
 function LoginPage() {
   const [email, setEmail] = useState("");
@@ -8,22 +9,23 @@ function LoginPage() {
   const [error, setError] = useState(null);
   const navigate = useNavigate();
 
+  const { login } = useAuth();
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError(null);
 
     try {
-      // Simulando uma chamada de API
+      // Chamada teste API (Aqui futuramente será chamada a API Flask)
       await new Promise(resolve => setTimeout(resolve, 1000));
 
-      // Lógica de login aqui (quando o backend estiver pronto)
-      // Por enquanto, vamos simular um login de sucesso
-      console.log("Tentativa de login com:", { email, senha });
+      const userData = { name: "Miguel Henrique", email: email };
+      const userToken = "abcdef123456"; // Token de exemplo
 
-      // Se o login for bem-sucedido:
-      alert("Login realizado com sucesso!");
-      navigate("/"); // Redireciona para o Dashboard
+      // CHAME A FUNÇÃO login() DO CONTEXTO AQUI
+      // Ela já cuida de salvar o estado, o localStorage e o redirecionamento.
+      login(userData, userToken);
 
     } catch (err) {
       setError("Falha na conexão ou na API.");

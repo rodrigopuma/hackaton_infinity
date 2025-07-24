@@ -1,31 +1,43 @@
+// src/App.jsx - Versão Corrigida
+
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ThemeProvider } from './contexts/ThemeContext';
+import { AuthProvider } from './contexts/AuthContext';
+
+// Páginas e Componentes
 import DashboardPage from './pages/DashboardPage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import ProfilePage from './pages/ProfilePage';
 import MainLayout from './components/layout/MainLayout';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+import CalendarPage from './pages/CalendarPage';
 
 function App() {
   return (
     <ThemeProvider>
-      {/* Aplicando a fonte e as cores base em toda a aplicação */}
-      <div className="font-sans bg-infinity-dark text-infinity-text min-h-screen">
-        <BrowserRouter>
-          <Routes>
-            {/* Rotas Públicas - não possuem o menu lateral */}
-            <Route path="/login" element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
+      {/* CORREÇÃO: O BrowserRouter deve vir antes do AuthProvider,
+          pois o AuthProvider usa o hook useNavigate, que depende do BrowserRouter. */}
+      <BrowserRouter>
+        <AuthProvider>
+          <div className="font-sans bg-infinity-dark text-infinity-text min-h-screen">
+            <Routes>
+              {/* Rotas Públicas */}
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/register" element={<RegisterPage />} />
 
-            {/* O MainLayout atua como uma "casca" para as rotas privadas */}
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<DashboardPage />} />
-              <Route path="/perfil" element={<ProfilePage />} />
-              {/* <Route path="/calendario" element={<CalendarPage />} /> */}
-            </Route>
-          </Routes>
-        </BrowserRouter>
-      </div>
+              {/* Agrupamento de Rotas Protegidas */}
+              <Route element={<ProtectedRoute />}>
+                <Route element={<MainLayout />}>
+                  <Route path="/" element={<DashboardPage />} />
+                  <Route path="/perfil" element={<ProfilePage />} />
+                  <Route path="/calendario" element={<CalendarPage />} />
+                </Route>
+              </Route>
+            </Routes>
+          </div>
+        </AuthProvider>
+      </BrowserRouter>
     </ThemeProvider>
   );
 }
