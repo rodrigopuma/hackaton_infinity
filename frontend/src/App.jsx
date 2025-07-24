@@ -1,17 +1,18 @@
 // src/App.jsx - Versão Corrigida
 
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import { ThemeProvider } from './contexts/ThemeContext';
-import { AuthProvider } from './contexts/AuthContext';
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { ThemeProvider } from "./contexts/ThemeContext";
+import { AuthProvider } from "./contexts/AuthContext";
 
 // Páginas e Componentes
-import DashboardPage from './pages/DashboardPage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import ProfilePage from './pages/ProfilePage';
-import MainLayout from './components/layout/MainLayout';
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import CalendarPage from './pages/CalendarPage';
+import DashboardPage from "./pages/DashboardPage";
+import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
+import ProfilePage from "./pages/ProfilePage";
+import MainLayout from "./components/layout/MainLayout";
+import ProtectedRoute from "./components/auth/ProtectedRoute";
+import CalendarPage from "./pages/CalendarPage";
+import AdminListUsuariosPage from "./pages/AdminListUsersPage";
 
 function App() {
   return (
@@ -32,6 +33,10 @@ function App() {
                   <Route path="/" element={<DashboardPage />} />
                   <Route path="/perfil" element={<ProfilePage />} />
                   <Route path="/calendario" element={<CalendarPage />} />
+                  <Route
+                    path="/admin/usuarios"
+                    element={<AdminListUsuariosPage />}
+                  />
                 </Route>
               </Route>
             </Routes>
