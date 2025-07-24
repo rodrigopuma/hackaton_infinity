@@ -1,90 +1,103 @@
-# backend/usuario.py
-
+from db import get_connection
 import bcrypt
-import json
-import os
-from datetime import datetime
-import uuid # Usaremos para IDs mais robustos
-
-ARQUIVO_USUARIOS = 'usuarios.json'
+import uuid
 
 class Usuario:
-    def __init__(self, nome, email, senha, id=None, **kwargs):
-        self.id = id if id else str(uuid.uuid4())
-        self.nome = nome
+    def __init__(self, id, name, email, password_hash, role, bio, photoUrl):
+        self.id = id
+        self.name = name
         self.email = email
-        # O hash da senha é feito aqui, ao criar o usuário
-        self.senha_hash = self.hash_password(senha)
-        
-        # Outros campos com valores padrão
-        self.role = kwargs.get('role', 'Funcionário')
-        self.bio = kwargs.get('bio', 'Novo membro da equipe Infinity!')
-        self.photoUrl = kwargs.get('photoUrl', f"https://ui-avatars.com/api/?name={nome.replace(' ', '+')}")
+        self.password_hash = password_hash.encode('utf-8')
+        self.role = role
+        self.bio = bio
+        self.photoUrl = photoUrl
 
-    @staticmethod
-    def hash_password(senha):
-        """Cria um hash seguro para a senha fornecida."""
-        return bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt())
-
-    def verificar_senha(self, senha_para_verificar):
-        """
-        CORRIGIDO: Este é um método de instância, não estático.
-        Ele compara uma senha em texto puro com o hash armazenado no objeto.
-        """
-        return bcrypt.checkpw(senha_para_verificar.encode('utf-8'), self.senha_hash)
+    def verificar_senha(self, senha):
+        return bcrypt.checkpw(senha.encode(), self.password_hash)
 
     def to_dict(self):
-        """
-        Converte o objeto Usuario para um dicionário.
-        IMPORTANTE: NUNCA inclua a senha ou o hash da senha aqui!
-        """
         return {
             "id": self.id,
-            "name": self.nome,
+            "name": self.name,
             "email": self.email,
             "role": self.role,
             "bio": self.bio,
             "photoUrl": self.photoUrl
         }
+
+def criar_usuario(name, email, senha, role='Funcionário', bio='Novo membro da equipe Infinity!'):
+    senha_hash = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt()).decode()
+    photoUrl = f"https://ui-avatars.com/api/?name={name.replace(' ', '+')}"
+    id_usuario = str(uuid.uuid4())
     
-    @classmethod
-    def from_dict(cls, data):
-        """Cria uma instância de Usuario a partir de um dicionário (vindo do JSON)."""
-        # Nota: A senha não é passada aqui, pois já vem hasheada
-        user_obj = cls(
-            id=data['id'],
-            nome=data['name'],
-            email=data['email'],
-            senha="dummy_password_not_used", # A senha real não é necessária aqui
-            role=data.get('role'),
-            bio=data.get('bio'),
-            photoUrl=data.get('photoUrl')
-        )
-        # Atribuímos o hash diretamente
-        user_obj.senha_hash = data['senha_hash'].encode('utf-8')
-        return user_obj
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("""
+        INSERT INTO usuarios (id, nome, email, senha_hash, role, bio, photo_url)
+        VALUES (%s, %s, %s, %s, %s, %s, %s)
+    """, (id_usuario, name, email, senha_hash, role, bio, photoUrl))
+    conn.commit()
+    cur.close()
+    conn.close()
+    return id_usuario
 
-# --- Funções Auxiliares ---
+def buscar_usuario_por_email(email):
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, nome, email, senha_hash, role, bio, photo_url FROM usuarios WHERE email = %s", (email,))
+    row = cur.fetchone()
+    cur.close()
+    conn.close()
+    if row:
+        return Usuario(*row)
+    return None
 
-def carregar_usuarios():
-    """Carrega todos os usuários do arquivo JSON."""
-    if not os.path.exists(ARQUIVO_USUARIOS):
-        return {} # Usaremos um dicionário com emails como chave para busca rápida
+def listar_usuarios():
+    conn = get_connection()
+    cur = conn.cursor()
+    cur.execute("SELECT id, nome, email, senha_hash, role, bio, photo_url FROM usuarios")
+    rows = cur.fetchall()
+    cur.close()
+    conn.close()
+    return [Usuario(*row) for row in rows]
+
+def atualizar_usuario(id, name=None, email=None, senha=None, role=None, bio=None, photoUrl=None):
+    conn = get_connection()
+    cur = conn.cursor()
     
-    with open(ARQUIVO_USUARIOS, 'r', encoding='utf-8') as f:
-        lista_de_usuarios_dict = json.load(f)
-        # Converte a lista de dicts em um dict de objetos Usuario
-        usuarios_obj = {u['email']: Usuario.from_dict(u) for u in lista_de_usuarios_dict}
-        return usuarios_obj
+    updates = []
+    params = []
+    
+    if name:
+        updates.append("nome = %s")
+        params.append(name)
+    if email:
+        updates.append("email = %s")
+        params.append(email)
+    if senha:
+        senha_hash = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt()).decode()
+        updates.append("senha_hash = %s")
+        params.append(senha_hash)
+    if role:
+        updates.append("role = %s")
+        params.append(role)
+    if bio:
+        updates.append("bio = %s")
+        params.append(bio)
+    if photoUrl:
+        updates.append("photo_url = %s")
+        params.append(photoUrl)
 
-def salvar_usuarios(dict_usuarios):
-    """Salva o dicionário de usuários de volta no arquivo JSON."""
-    lista_para_salvar = []
-    for user_obj in dict_usuarios.values():
-        # Antes de salvar, precisamos do dicionário completo, incluindo o hash
-        full_dict = user_obj.to_dict()
-        full_dict['senha_hash'] = user_obj.senha_hash.decode('utf-8')
-        lista_para_salvar.append(full_dict)
+    if not updates:
+        return False
 
-    with open(ARQUIVO_USUARIOS, 'w', encoding='utf-8') as f:
-        json.dump(lista_para_salvar, f, ensure_ascii=False, indent=4)
+    params.append(id)
+    query = f"UPDATE usuarios SET {', '.join(updates)} WHERE id = %s"
+    
+    cur.execute(query, tuple(params))
+    conn.commit()
+    
+    cur.close()
+    conn.close()
+    
+    return True
