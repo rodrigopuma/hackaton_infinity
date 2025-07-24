@@ -7,6 +7,12 @@ function AdminListUsersPage() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    // Verifica se o usuário é admin
+    if (!user || user.role !== "admin") {
+      setError("Acesso negado. Permissão de administrador necessária.");
+      return;
+    }
+
     fetch("http://localhost:5000/api/admin/usuarios")
       .then((res) => res.json())
       .then((data) => setUsuarios(data))
