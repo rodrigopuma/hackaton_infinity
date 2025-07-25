@@ -1,6 +1,7 @@
 import { Outlet } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import BottomNav from './BottomNav';
+import MobileHeader from './MobileHeader';
 
 function MainLayout() {
     return (
@@ -8,6 +9,7 @@ function MainLayout() {
         <div className="flex h-screen">
             <Sidebar />
             <main className="flex-1 p-4 sm:p-8 overflow-y-auto">
+                <MobileHeader />
                 {/* O <Outlet /> renderiza o componente da rota filha (DashboardPage, ProfilePage, etc.) */}
                 <Outlet />
             </main>
