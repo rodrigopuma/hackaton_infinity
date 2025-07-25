@@ -3,6 +3,9 @@ import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import EventModal from '../components/EventModal';
+// 1. Importe as funções do nosso gerenciador de notificações
+import { requestNotificationPermission, scheduleNotification } from '../utils/notificationManager';
+
 
 const CATEGORY_COLORS = {
     'Reuniões': '#3174ad',
@@ -34,43 +37,63 @@ function CalendarPage() {
         setSelectedDateInfo(selectInfo);
     };
 
-    const handleSaveEvent = ({ title, category }) => {
+    // 2. Modifique a função para receber o 'wantsReminder' e se tornar 'async'
+    const handleSaveEvent = async ({ title, category, wantsReminder, time }) => {
         if (selectedDateInfo) {
             const calendarApi = selectedDateInfo.view.calendar;
             calendarApi.unselect();
 
+            const startDateTime = `${selectedDateInfo.startStr}T${time}`;
+
             const newEvent = {
                 title,
-                start: selectedDateInfo.startStr,
-                end: selectedDateInfo.endStr,
-                allDay: selectedDateInfo.allDay,
+                start: startDateTime, // Usa a nova data com hora
+                allDay: false, // Define que o evento NÃO é de dia inteiro
                 color: CATEGORY_COLORS[category] || '#3174ad'
             };
             setEvents(currentEvents => [...currentEvents, newEvent]);
+
+            // 3. Adicione a lógica para agendar a notificação
+            if (wantsReminder) {
+                const hasPermission = await requestNotificationPermission();
+                if (hasPermission) {
+                    scheduleNotification(
+                        `Lembrete: ${title}`,
+                        `Sua tarefa "${title}" está começando agora!`,
+                        startDateTime // Passa a data com a hora para a notificação
+                    );
+                } else {
+                    alert("Você precisa permitir as notificações no seu navegador para ser lembrado!");
+                }
+            }
         }
     };
 
     return (
         <div>
-            {/* Título da página com cores de tema */}
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-infinity-text mb-6">Meu Calendário</h1>
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-infinity-text mb-6">Meu Calendário</h1>
 
-            {/* Container do calendário com cores de tema */}
-            <div className="p-4 bg-white dark:bg-infinity-gray rounded-lg shadow-lg text-gray-800 dark:text-infinity-text">
+            {/* Adicionamos padding responsivo aqui */}
+            <div className="p-2 md:p-4 bg-white dark:bg-infinity-gray rounded-lg shadow-lg text-gray-800 dark:text-infinity-text">
                 <FullCalendar
                     plugins={[dayGridPlugin, interactionPlugin]}
                     initialView="dayGridMonth"
                     locale='pt-br'
                     buttonText={{ today: 'Hoje' }}
+
+                    // MUDANÇA PRINCIPAL: Cabeçalho mais simples
                     headerToolbar={{
-                        left: 'prev,next today',
+                        left: 'prev',
                         center: 'title',
-                        right: 'dayGridMonth'
+                        right: 'next'
                     }}
+                    // O FullCalendar já tem uma boa responsividade interna,
+                    // mas simplificar o header ajuda muito no mobile.
+
                     events={events}
                     selectable={true}
                     select={handleDateSelect}
-                    height="75vh"
+                    height="auto" // 'auto' ajuda na adaptação a diferentes alturas de tela
                 />
             </div>
 
