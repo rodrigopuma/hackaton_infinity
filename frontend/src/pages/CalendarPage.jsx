@@ -4,7 +4,6 @@ import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
 import EventModal from '../components/EventModal';
 
-// 1. Centralizamos as cores aqui para facilitar a manutenção
 const CATEGORY_COLORS = {
     'Reuniões': '#3174ad',
     'Entregas': '#E84A3F',
@@ -18,14 +17,11 @@ const initialEvents = [
 ];
 
 function CalendarPage() {
-    // 2. O estado agora carrega os eventos do localStorage.
-    // Se não houver nada salvo, ele usa os eventos iniciais.
     const [events, setEvents] = useState(() => {
         const savedEvents = localStorage.getItem('calendarEvents');
         return savedEvents ? JSON.parse(savedEvents) : initialEvents;
     });
 
-    // 3. Este useEffect salva os eventos no localStorage toda vez que a lista 'events' é modificada.
     useEffect(() => {
         localStorage.setItem('calendarEvents', JSON.stringify(events));
     }, [events]);
@@ -48,8 +44,7 @@ function CalendarPage() {
                 start: selectedDateInfo.startStr,
                 end: selectedDateInfo.endStr,
                 allDay: selectedDateInfo.allDay,
-                // 4. A cor agora é pega do nosso objeto de cores.
-                color: CATEGORY_COLORS[category] || '#3174ad' // Cor padrão caso a categoria não seja encontrada
+                color: CATEGORY_COLORS[category] || '#3174ad'
             };
             setEvents(currentEvents => [...currentEvents, newEvent]);
         }
@@ -57,15 +52,16 @@ function CalendarPage() {
 
     return (
         <div>
-            <h1 className="text-3xl font-bold text-infinity-text mb-6">Meu Calendário</h1>
-            <div className="p-4 bg-infinity-gray rounded-lg text-infinity-text">
+            {/* Título da página com cores de tema */}
+            <h1 className="text-3xl font-bold text-gray-800 dark:text-infinity-text mb-6">Meu Calendário</h1>
+
+            {/* Container do calendário com cores de tema */}
+            <div className="p-4 bg-white dark:bg-infinity-gray rounded-lg shadow-lg text-gray-800 dark:text-infinity-text">
                 <FullCalendar
                     plugins={[dayGridPlugin, interactionPlugin]}
                     initialView="dayGridMonth"
-                    locale='pt-br' // Adiciona tradução para o calendário
-                    buttonText={{
-                        today: 'Hoje'
-                    }}
+                    locale='pt-br'
+                    buttonText={{ today: 'Hoje' }}
                     headerToolbar={{
                         left: 'prev,next today',
                         center: 'title',

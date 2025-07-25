@@ -9,7 +9,7 @@ function ThemeToggleButton() {
     return (
         <button
             onClick={toggleTheme} // CORRIGIDO: Atributo de evento em camelCase.
-            className="p-2 rounded-full bg-infinity-gray-light hover:bg-opacity-75"
+            className="p-2 w-full flex justify-center items-center rounded-lg bg-infinity-red hover:bg-opacity-75 transition-colors"
             aria-label="Toggle theme" // CORRIGIDO: Atributo de acessibilidade.
         >
             {/* Renderização condicional: mostra um ícone diferente baseado no tema ativo. */}
