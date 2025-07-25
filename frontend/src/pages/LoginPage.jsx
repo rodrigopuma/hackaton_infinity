@@ -14,39 +14,30 @@ function LoginPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
 
     try {
       const resposta = await fetch("http://localhost:5000/api/login", {
         method: "POST",
-        credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, senha }),
       });
 
-      const json = await resposta.json();
-
-      if (resposta.ok) {
-        console.log("Resposta do servidor:", json);
-        alert("Login realizado com sucesso!");
-        navigate("/dashboard");
-
-        const userData = json.user;
-        const userToken = "abcdef123456"; // Token de exemplo
-
-        // CHAME A FUNÇÃO login() DO CONTEXTO AQUI
-        // Ela já cuida de salvar o estado, o localStorage e o redirecionamento.
-        login(userData, userToken);
-      } else {
-        console.log("Resposta do servidor:", json);
-        alert("Erro: " + json);
+      const data = await resposta.json();
+      if (!resposta.ok) {
+        throw new Error(data.message || "Erro de autenticação. ")
       }
+
+      if (data.user && data.token) {
+        login(data.user, data.token);
+      } else {
+        throw new Error("Resposta da API inválida.");
+      }
+
     } catch (err) {
-      setError("Falha na conexão ou na API.");
-      console.error(err);
-    } finally {
-      setIsLoading(false);
+      console.log("Falha no login: ", err)
+      setError(err.message); // mostra a mensagem de erro vinda da API ou do nosso 'throw'.
+      setIsLoading(false); // Para parar o loading no caso de erro
     }
   };
 
