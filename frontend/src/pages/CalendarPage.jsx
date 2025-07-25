@@ -1,40 +1,55 @@
-// src/pages/CalendarPage.jsx
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import FullCalendar from '@fullcalendar/react';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import interactionPlugin from '@fullcalendar/interaction';
-import EventModal from '../components/EventModal'; // 1. Importe o Modal
+import EventModal from '../components/EventModal';
+
+// 1. Centralizamos as cores aqui para facilitar a manutenção
+const CATEGORY_COLORS = {
+    'Reuniões': '#3174ad',
+    'Entregas': '#E84A3F',
+    'Eventos': '#f0ad4e',
+    'Pessoal': '#5cb85c'
+};
+
+const initialEvents = [
+    { title: 'Reunião de Planejamento', date: '2025-07-25', color: CATEGORY_COLORS['Reuniões'] },
+    { title: 'Entrega do Hackathon', date: '2025-07-27', color: CATEGORY_COLORS['Entregas'] }
+];
 
 function CalendarPage() {
-    const [events, setEvents] = useState([
-        { title: 'Reunião de Planejamento', date: '2025-07-25', color: '#3174ad' },
-        { title: 'Entrega do Projeto X', date: '2025-07-28', color: '#E84A3F' }
-    ]);
+    // 2. O estado agora carrega os eventos do localStorage.
+    // Se não houver nada salvo, ele usa os eventos iniciais.
+    const [events, setEvents] = useState(() => {
+        const savedEvents = localStorage.getItem('calendarEvents');
+        return savedEvents ? JSON.parse(savedEvents) : initialEvents;
+    });
 
-    // 2. Estados para controlar o modal e a data selecionada
+    // 3. Este useEffect salva os eventos no localStorage toda vez que a lista 'events' é modificada.
+    useEffect(() => {
+        localStorage.setItem('calendarEvents', JSON.stringify(events));
+    }, [events]);
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedDateInfo, setSelectedDateInfo] = useState(null);
 
-    // 3. Modifica o handleDateSelect para ABRIR o modal
     const handleDateSelect = (selectInfo) => {
         setIsModalOpen(true);
         setSelectedDateInfo(selectInfo);
     };
 
-    // 4. Cria a função para SALVAR o evento vindo do modal
     const handleSaveEvent = ({ title, category }) => {
         if (selectedDateInfo) {
             const calendarApi = selectedDateInfo.view.calendar;
-            calendarApi.unselect(); // Limpa a seleção da data
+            calendarApi.unselect();
 
             const newEvent = {
                 title,
                 start: selectedDateInfo.startStr,
                 end: selectedDateInfo.endStr,
                 allDay: selectedDateInfo.allDay,
-                // Lógica de cores (exemplo simples)
-                color: category === 'Entregas' ? '#E84A3F' : category === 'Eventos' ? '#f0ad4e' : '#3174ad'
+                // 4. A cor agora é pega do nosso objeto de cores.
+                color: CATEGORY_COLORS[category] || '#3174ad' // Cor padrão caso a categoria não seja encontrada
             };
             setEvents(currentEvents => [...currentEvents, newEvent]);
         }
@@ -47,6 +62,10 @@ function CalendarPage() {
                 <FullCalendar
                     plugins={[dayGridPlugin, interactionPlugin]}
                     initialView="dayGridMonth"
+                    locale='pt-br' // Adiciona tradução para o calendário
+                    buttonText={{
+                        today: 'Hoje'
+                    }}
                     headerToolbar={{
                         left: 'prev,next today',
                         center: 'title',
@@ -59,7 +78,6 @@ function CalendarPage() {
                 />
             </div>
 
-            {/* 5. Renderiza o Modal, passando os estados e funções como props */}
             <EventModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

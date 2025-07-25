@@ -24,20 +24,23 @@ function LoginPage() {
       });
 
       const data = await resposta.json();
+
       if (!resposta.ok) {
-        throw new Error(data.message || "Erro de autenticação. ")
+        throw new Error(data.message || "Erro de autenticação.");
       }
 
       if (data.user && data.token) {
+        // A função login do contexto é a única que deve ser chamada no sucesso.
+        // Ela cuida de tudo: salvar o estado, o localStorage e o redirecionamento.
         login(data.user, data.token);
       } else {
         throw new Error("Resposta da API inválida.");
       }
 
     } catch (err) {
-      console.log("Falha no login: ", err)
-      setError(err.message); // mostra a mensagem de erro vinda da API ou do nosso 'throw'.
-      setIsLoading(false); // Para parar o loading no caso de erro
+      console.error("Falha no login:", err);
+      setError(err.message);
+      setIsLoading(false); // Importante parar o loading no erro!
     }
   };
 

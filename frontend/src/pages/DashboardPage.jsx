@@ -1,21 +1,20 @@
-// src/pages/DashboardPage.jsx
-
 import { FiGrid, FiLink, FiCheckSquare } from "react-icons/fi";
-import QuickNotes from "../components/QuickNotes"; // 1. Importe o componente
-import { useAuth } from "../contexts/AuthContext"; // Importe para pegar o nome do usuário
-import { useState } from "react";
+import QuickNotes from "../components/QuickNotes";
+import { useAuth } from "../contexts/AuthContext";
+// O import do useState foi removido, pois não é mais necessário.
 
 function DashboardPage() {
   const { user } = useAuth();
-  const [name, setName] = useState("");
+  // O estado 'name' foi removido, pois não era utilizado.
 
   return (
     <>
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold text-infinity-text">
-            {/* Usa o nome do usuário do contexto */}
-            Bem-vindo, {user.name.split(" ")[0]}!
+            {/* CORREÇÃO: Adicionamos uma verificação.
+                Se 'user' existir, mostra o nome. Senão, mostra um texto provisório. */}
+            Bem-vindo, {user ? user.name.split(" ")[0] : 'Usuário'}!
           </h1>
           <p className="mt-1 text-gray-400">
             Aqui está um resumo da sua produtividade.
@@ -24,7 +23,6 @@ function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {/* ... Seus cards ... */}
         <div className="bg-infinity-gray p-6 rounded-lg shadow-lg hover:bg-infinity-gray-light transition-colors cursor-pointer">
           <FiGrid size={30} className="text-infinity-red" />
           <h2 className="mt-4 font-bold text-xl text-infinity-text">
@@ -54,7 +52,6 @@ function DashboardPage() {
         </div>
       </div>
 
-      {/* 2. Adicione o componente de anotações aqui */}
       <QuickNotes />
     </>
   );

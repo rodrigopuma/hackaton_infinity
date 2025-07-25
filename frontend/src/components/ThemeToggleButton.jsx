@@ -1,5 +1,3 @@
-// src/components/ThemeToggleButton.jsx
-
 import { FiSun, FiMoon } from 'react-icons/fi';
 import { useTheme } from '../contexts/ThemeContext'; // Importa nosso hook customizado
 
@@ -11,7 +9,7 @@ function ThemeToggleButton() {
     return (
         <button
             onClick={toggleTheme} // CORRIGIDO: Atributo de evento em camelCase.
-            className="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-800 dark:text-gray-200 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors"
+            className="p-2 rounded-full bg-infinity-gray-light hover:bg-opacity-75"
             aria-label="Toggle theme" // CORRIGIDO: Atributo de acessibilidade.
         >
             {/* Renderização condicional: mostra um ícone diferente baseado no tema ativo. */}
