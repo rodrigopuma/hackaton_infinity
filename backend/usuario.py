@@ -1,6 +1,7 @@
 from db import get_connection
 import bcrypt
 import uuid
+import urllib.parse
 
 class Usuario:
     def __init__(self, id, name, email, password_hash, role, bio, photoUrl):
@@ -27,7 +28,7 @@ class Usuario:
 
 def criar_usuario(name, email, senha, role='Funcionário', bio='Novo membro da equipe Infinity!'):
     senha_hash = bcrypt.hashpw(senha.encode('utf-8'), bcrypt.gensalt()).decode()
-    photoUrl = f"https://ui-avatars.com/api/?name={name.replace(' ', '+')}"
+    photoUrl = f"https://ui-avatars.com/api/?name={urllib.parse.quote(name)}"
     id_usuario = str(uuid.uuid4())
     
     conn = get_connection()
