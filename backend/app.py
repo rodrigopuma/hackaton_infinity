@@ -6,17 +6,17 @@ from usuario import criar_usuario, buscar_usuario_por_email, listar_usuarios, at
 from db import get_connection
 
 # --- Configuração da Aplicação ---
-app = Flask(__name__)
+flask_app = Flask(__name__)
 # Permite que o frontend em localhost:5001 acesse esta API
-CORS(app, origins=['http://localhost:5001'], supports_credentials=True)
+CORS(flask_app, origins=['http://localhost:5001'], supports_credentials=True)
 
 # --- Endpoints da API ---
 
-@app.route('/', methods=['GET'])
+@flask_app.route('/', methods=['GET'])
 def home():
     return "Servidor Rodando!!!"
 
-@app.route('/api/register', methods=['POST'])
+@flask_app.route('/api/register', methods=['POST'])
 def register():
     data = request.get_json()
     if not data or not data.get('nome') or not data.get('email') or not data.get('senha'):
@@ -30,7 +30,7 @@ def register():
     return jsonify({"message": "Usuário cadastrado com sucesso!"}), 201
 
 
-@app.route('/api/login', methods=['POST'])
+@flask_app.route('/api/login', methods=['POST'])
 def login():
     data = request.get_json()
     if not data or not data.get('email') or not data.get('senha'):
@@ -48,15 +48,15 @@ def login():
         "token": token
     })
 
-@app.route('/api/admin/usuarios', methods=['GET'])
+@flask_app.route('/api/admin/usuarios', methods=['GET'])
 def listar_usuarios_admin():
     usuarios = listar_usuarios()
     return jsonify([u.to_dict() for u in usuarios])
 
-@app.route('/api/profile', methods=['PUT'])
+@flask_app.route('/api/profile', methods=['PUT'])
 def update_profile():
     # Para saber QUEM está editando, vamos usar o token (simulado)
-    # Em um app real, o token JWT conteria o ID do usuário.
+    # Em um flask_app real, o token JWT conteria o ID do usuário.
     # Aqui, vamos pegar o email do nosso token falso.
     auth_header = request.headers.get('Authorization')
     if not auth_header or not auth_header.startswith('Bearer '):
@@ -91,4 +91,4 @@ def update_profile():
 
 # --- Roda a Aplicação ---
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    flask_app.run(debug=True, port=5000)
