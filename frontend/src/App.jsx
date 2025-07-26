@@ -36,7 +36,7 @@ function App() {
                   <Route path="/calendario" element={<CalendarPage />} />
                   <Route path="/planilhas" element={<SpreadsheetPage />} />
                   <Route
-                    path="/admin/usuarios"
+                    path="/admin-usuarios"
                     element={<AdminListUsuariosPage />}
                   />
                 </Route>
