@@ -21,9 +21,9 @@ function AdminListUsersPage() {
     }
 
     // A lógica de fetch continua a mesma
-    fetch("http://localhost:5000/api/admin/usuarios")
+    fetch("https://organizainfinity.onrender.com/api/admin/usuarios")
       .then((res) => {
-        if (!res.ok) throw new Error('Falha na resposta da rede');
+        if (!res.ok) throw new Error("Falha na resposta da rede");
         return res.json();
       })
       .then((data) => setUsuarios(data))
@@ -48,7 +48,9 @@ function AdminListUsersPage() {
         {error && <p className="text-red-500 text-center mb-4">{error}</p>}
 
         {!error && usuarios.length === 0 && (
-          <p className="text-center text-gray-400">Nenhum usuário encontrado.</p>
+          <p className="text-center text-gray-400">
+            Nenhum usuário encontrado.
+          </p>
         )}
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -58,7 +60,9 @@ function AdminListUsersPage() {
               // ✨ CORREÇÃO DE ESTILO: Usando cores do tema
               className="bg-infinity-gray p-4 rounded-xl shadow-md hover:bg-infinity-gray-light transition"
             >
-              <h2 className="text-xl font-semibold text-infinity-text">{u.name}</h2>
+              <h2 className="text-xl font-semibold text-infinity-text">
+                {u.name}
+              </h2>
               <p className="text-gray-400">{u.email}</p>
               <p className="text-sm text-gray-500 mb-3">
                 Função: {u.role || "Não definido"}
