@@ -1,7 +1,7 @@
 // src/components/layout/BottomNav.jsx
 
 import { NavLink } from 'react-router-dom';
-import { FiHome, FiCalendar, FiUser, FiMoon, FiSun } from 'react-icons/fi';
+import { FiHome, FiCalendar, FiUser, FiMoon, FiSun, FiGrid } from 'react-icons/fi';
 import { useTheme } from '../../contexts/ThemeContext'; // Importamos o hook do tema
 
 function BottomNav() {
@@ -33,6 +33,15 @@ function BottomNav() {
             >
                 <FiCalendar size={22} />
                 <span className="text-xs mt-1">Calendário</span>
+            </NavLink>
+
+            <NavLink
+                to="/planilhas"
+                className="flex flex-col items-center text-gray-600 dark:text-gray-400"
+                style={({ isActive }) => isActive ? activeStyle : undefined}
+            >
+                <FiGrid size={22} />
+                <span className="text-xs mt-1">Planilhas</span>
             </NavLink>
 
             <NavLink

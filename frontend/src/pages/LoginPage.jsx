@@ -39,15 +39,17 @@ function LoginPage() {
   };
 
   return (
-    // O fundo da página agora reage ao tema
+    // O 'p-4' aqui garante um respiro geral da página
     <div className="flex flex-col items-center justify-center min-h-screen p-4 bg-gray-100 dark:bg-infinity-dark">
-      {/* Botão de tema posicionado no canto */}
       <div className="absolute top-5 right-5">
         <ThemeToggleButton />
       </div>
 
+      {/* Este container é a chave da responsividade:
+          w-full -> ocupa 100% da largura disponível
+          max-w-md -> mas não passa de um limite máximo (medium) em telas grandes
+      */}
       <div className="w-full max-w-md">
-        {/* Logo adicionado */}
         <div className="flex items-center justify-center gap-2 mb-6">
           <img src={logo} alt="Infinity School Logo" className="w-10 h-10" />
           <h1 className="text-3xl font-bold text-infinity-red">
@@ -55,10 +57,10 @@ function LoginPage() {
           </h1>
         </div>
 
-        {/* Formulário com cores de tema */}
-        <form onSubmit={handleSubmit} className="bg-white dark:bg-infinity-gray p-8 rounded-lg shadow-xl">
+        {/* Padding responsivo: p-6 em telas pequenas, sm:p-8 em telas maiores */}
+        <form onSubmit={handleSubmit} className="bg-white dark:bg-infinity-gray p-6 sm:p-8 rounded-lg shadow-xl">
           <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-infinity-text">
-            Faça seu login
+            Acessar Plataforma
           </h2>
           <div className="mb-4">
             <label htmlFor="email" className="block text-sm font-medium text-gray-600 dark:text-gray-400 mb-1">Email</label>
