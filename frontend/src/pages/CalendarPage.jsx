@@ -74,7 +74,7 @@ function CalendarPage() {
             <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-infinity-text mb-6">Meu Calendário</h1>
 
             {/* Adicionamos padding responsivo aqui */}
-            <div className="p-2 md:p-4 bg-white dark:bg-infinity-gray rounded-lg shadow-lg text-gray-800 dark:text-infinity-text">
+            <div className="p-2 md:p-4 bg-white dark:bg-infinity-gray rounded-lg shadow-lg text-gray-800 dark:text-infinity-red">
                 <FullCalendar
                     plugins={[dayGridPlugin, interactionPlugin]}
                     initialView="dayGridMonth"
