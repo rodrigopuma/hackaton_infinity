@@ -114,9 +114,6 @@ cd hackaton_infinity
 ```bash
 Abra um terminal dentro da pasta do projeto.
 
-bash
-Copiar
-Editar
 # Acesse a pasta do backend
 cd backend
 
@@ -144,9 +141,6 @@ flask run
 ```bash
 Abra um novo terminal, também na pasta raiz do projeto.
 
-bash
-Copiar
-Editar
 # Acesse a pasta do frontend
 cd frontend
 
