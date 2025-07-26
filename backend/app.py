@@ -8,7 +8,7 @@ from db import get_connection
 # --- Configuração da Aplicação ---
 flask_app = Flask(__name__)
 # Permite que o frontend em localhost:5001 acesse esta API
-CORS(flask_app, origins=['https://hackaton-infinity.vercel.app/'], supports_credentials=True)
+CORS(flask_app, resources={r"/*": {"origins": "https://hackaton-infinity.vercel.app"}})
 
 # --- Endpoints da API ---
 
